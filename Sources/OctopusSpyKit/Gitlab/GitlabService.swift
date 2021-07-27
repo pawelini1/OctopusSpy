@@ -11,23 +11,20 @@ class GitlabService {
     private let requestBuilder: GitLabURLRequestsBuilder
     private let jsonDecoder: JSONDecoder
     private let urlSession: URLSession
-    private let filter: MergeRequestsFilter
     
     init(requestBuilder: GitLabURLRequestsBuilder,
          jsonDecoder: JSONDecoder = JSONDecoderFactory.default.projectsJSONDecoder(),
-         urlSession: URLSession = .shared,
-         filter: MergeRequestsFilter) {
+         urlSession: URLSession = .shared) {
         self.requestBuilder = requestBuilder
         self.jsonDecoder = jsonDecoder
         self.urlSession = urlSession
-        self.filter = filter
     }
     
-    func projects(for configuration: [ProjectConfiguration]) -> [Promise<Project>] {
-        return configuration.map(project)
+    func projects(for configuration: [ProjectConfiguration], filter: MergeRequestsFilter) -> [Promise<Project>] {
+        return configuration.map { project(for: $0, filter: filter) }
     }
 
-    func project(for configuration: ProjectConfiguration) -> Promise<Project> {
+    func project(for configuration: ProjectConfiguration, filter: MergeRequestsFilter) -> Promise<Project> {
         let promise = Promise<Project>.pending()
         do {
             var mergeRequests = try self.mergeRequests(for: configuration.id).resolveOrThrow()

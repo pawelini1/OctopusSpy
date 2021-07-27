@@ -25,10 +25,12 @@ struct SlackBotConfiguration {
     }
 }
 
-struct SlackChannelConfiguration {
-    let channel: String
+typealias ChannelId = String
 
-    init(channel: String) {
+struct SlackChannelConfiguration {
+    let channel: ChannelId
+
+    init(channel: ChannelId) {
         self.channel = channel
     }
 }

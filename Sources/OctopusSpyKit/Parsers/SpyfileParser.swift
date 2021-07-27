@@ -11,7 +11,7 @@ struct SpyfileStructure: Codable {
             let id: String
             let token: String
         }
-        let channelId: String
+        let channelId: ChannelId
         let bot: Bot?
     }
     

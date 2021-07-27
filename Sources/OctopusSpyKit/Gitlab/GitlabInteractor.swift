@@ -8,6 +8,10 @@ class GitlabInteractor {
     }
     
     func testProjectAccessibility(for project: ProjectConfiguration) throws {
-        let _ = try gitlabService.project(for: project).resolveOrThrow()
+        let _ = try gitlabService.project(for: project, filter: AcceptAllMergeRequestsFilter()).resolveOrThrow()
+    }
+    
+    func projects(for projects: [ProjectConfiguration], filter: MergeRequestsFilter) throws -> [Project] {
+        return try gitlabService.projects(for: projects, filter: filter).resolveOrThrow()
     }
 }

@@ -1,35 +1,34 @@
 import Files
 
-class SingleSpyfileLintRunner: ActionRunner {
+class SingleSpyfileLintRunner {
     enum SingleSpyfileLintRunnerError: Error {
         case lintingFailed([Error])
     }
     
-    private let filePath: String
     private let spyfileProvider: SpyfileProvider
     private let slackInteractor: SlackInteractor
     private let gitlabInteractor: GitlabInteractor
 
-    convenience init(filePath: String, context: Context) {
-        let slackRequestBuilder = SlackURLRequestsBuilder(token: context.slackToken)
+    convenience init(context: LintContext) {
         let gitlabRequestBuilder = GitLabURLRequestsBuilder(token: context.gitlabToken, apiURL: context.gitlabAPIURL)
-        self.init(filePath: filePath,
-                  spyfileProvider: DefaultSpyfileProvider(),
-                  slackInteractor: SlackInteractor(channelService: SlackChannelService(requestBuilder: slackRequestBuilder)),
-                  gitlabInteractor: GitlabInteractor(gitlabService: GitlabService(requestBuilder: gitlabRequestBuilder, filter: AcceptAllMergeRequestsFilter())))
+        let gitlabService = GitlabService(requestBuilder: gitlabRequestBuilder)
+        let slackRequestBuilder = SlackURLRequestsBuilder(token: context.slackToken)
+        let slackService = SlackChannelService(requestBuilder: slackRequestBuilder)
+        
+        self.init(spyfileProvider: DefaultSpyfileProvider(),
+                  slackInteractor: SlackInteractor(channelService: slackService),
+                  gitlabInteractor: GitlabInteractor(gitlabService: gitlabService))
     }
     
-    init(filePath: String,
-         spyfileProvider: SpyfileProvider,
+    init(spyfileProvider: SpyfileProvider,
          slackInteractor: SlackInteractor,
          gitlabInteractor: GitlabInteractor) {
-        self.filePath = filePath
         self.spyfileProvider = spyfileProvider
         self.slackInteractor = slackInteractor
         self.gitlabInteractor = gitlabInteractor
     }
     
-    func run() -> Result<Void, Error> {
+    func run(forPath filePath: Path) -> Result<Void, Error> {
         let spyfile: Spyfile
         
         // Test spyfile parsing
