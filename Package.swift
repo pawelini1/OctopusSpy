@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "OctopusSpy",
     products: [
-        .executable(name: "octopus", targets: ["OctopusSpy"]),
+        .executable(name: "octopusspy", targets: ["OctopusSpy"]),
         .library(name: "OctopusSpyKit", targets: ["OctopusSpyKit"])
     ],
     dependencies: [
