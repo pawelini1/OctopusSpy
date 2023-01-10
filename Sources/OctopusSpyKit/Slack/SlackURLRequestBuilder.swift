@@ -17,28 +17,42 @@ class SlackURLRequestsBuilder {
     }
     
     func makeHistoryRequest(inChannel channel: String, limit: Int) throws -> URLRequest {
-        return try urlRequest(with: "https://slack.com/api/conversations.history?token=\(token)&channel=\(channel)&limit=\(limit)")
+        return try urlRequest(
+            with: "https://slack.com/api/conversations.history?channel=\(channel)&limit=\(limit)",
+            token: token
+        )
     }
     
     func makeDeleteRequest(inChannel channel: String, for messageId: MessageId) throws -> URLRequest {
-        return try urlRequest(with: "https://slack.com/api/chat.delete?token=\(token)&channel=\(channel)&ts=\(messageId)")
+        return try urlRequest(
+            with: "https://slack.com/api/chat.delete?channel=\(channel)&ts=\(messageId)",
+            token: token
+        )
     }
     
     func makePostRequest(inChannel channel: String, attachment: Attachment) throws -> URLRequest {
-        return try urlRequest(with: "https://slack.com/api/chat.postMessage?token=\(token)&channel=\(channel)&attachments=\(try encodedAttachment(attachment))")
+        return try urlRequest(
+            with: "https://slack.com/api/chat.postMessage?channel=\(channel)&attachments=\(try encodedAttachment(attachment))",
+            token: token
+        )
     }
     
     func makeUpdateRequest(inChannel channel: String, messageId: MessageId, attachment: Attachment) throws -> URLRequest {
-        return try urlRequest(with: "https://slack.com/api/chat.update?token=\(token)&channel=\(channel)&ts=\(messageId)&attachments=\(try encodedAttachment(attachment))")
+        return try urlRequest(
+            with: "https://slack.com/api/chat.update?channel=\(channel)&ts=\(messageId)&attachments=\(try encodedAttachment(attachment))",
+            token: token
+        )
     }
 }
 
 private extension SlackURLRequestsBuilder {
-    func urlRequest(with urlString: String) throws -> URLRequest {
+    func urlRequest(with urlString: String, token: String) throws -> URLRequest {
         guard let url = URL(string: urlString) else {
             throw Error.wrongURLFormat(urlString)
         }
-        return URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: timeoutInterval)
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: timeoutInterval)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        return request
     }
     
     func encodedAttachment(_ attachment: Attachment) throws -> String {
